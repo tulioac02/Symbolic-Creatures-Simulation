@@ -17,12 +17,13 @@ using namespace std;
 #define GREEN "\033[32m"    // Verde -> Cobra
 #define RED "\033[31m"      // Vermelho -> Morte
 
+//Declaração antecipada de nvironment
+class Environment;
+
 // Classe abstrata Animal
 class Animal {
 public:
     tuple<int, int> position; // Tupla de inteiros para a posição
-
-    virtual void perception() = 0; // Função abstrata para percepção
     virtual void randomWalk() = 0; // Função abstrata para caminhada aleatória
 
     virtual ~Animal() {}  // Destrutor virtual
@@ -52,9 +53,14 @@ public:
         name = n;
     }
 
-    void perception() override {
+    void perception(Environment environment[10][10]) {
         // Implemente o código da percepção do Monkey
-        cout << "Monkey " << name << " perceives its surroundings." << endl;
+        cout << "Position of monkey is " << get<0>(this->position) << ',' << get<1>(this->position) << ".\n"; 
+        for(int i = get<0>(this->position); i< get<0>(this->position)+3; i++){
+            for(int j = get<1>(this->position); j < get<1>(this->position)+3; j++){
+                cout << "Perception of position " << i << ',' << j << endl;
+            }
+        }
     }
 
     void randomWalk() override {
@@ -94,7 +100,7 @@ public:
         strength = s;
     }
 
-    void perception() override {
+    void perception(Environment environment[10][10]){
         // Implemente o código da percepção do Predator
         cout << "Predator with strength " << strength << " perceives its surroundings." << endl;
     }
@@ -217,8 +223,9 @@ public:
         while(it != 0){
             int i = rand() % l, j = rand() % c;
             if(environment[i][j].type == GR && environment[i][j].monkeyList.empty()){
-                cout << "Monkey added in position " << i << ',' << j << ".\n";
                 environment[i][j].monkeyList.push_back(m);
+                m.position = environment[i][j].position;
+                cout << "Monkey added in position " << get<0>(m.position) << ',' << get<1>(m.position) << ".\n";
                 it--;
             }
         }
@@ -230,16 +237,17 @@ public:
         while(it != 0){
             int i = rand() % l, j = rand() % c;
             if(environment[i][j].type == GR && environment[i][j].monkeyList.empty() && environment[i][j].predatorList.empty()){
+                environment[i][j].predatorList.push_back(p);
+                p.position = environment[i][j].position;
                 if(p.type == Predator::EA){
-                    cout << "Eagle added in position " << i << ',' << j << ".\n";
+                    cout << "Eagle added in position " << get<0>(p.position) << ',' << get<1>(p.position) << ".\n";
                 }
                 else if(p.type == Predator::TI){
-                    cout << "Tiger added in position " << i << ',' << j << ".\n";
+                    cout << "Tiger added in position " << get<0>(p.position) << ',' << get<1>(p.position) << ".\n";
                 }
                 else if(p.type == Predator::SN){
-                    cout << "Snake added in position " << i << ',' << j << ".\n";
+                    cout << "Snake added in position " << get<0>(p.position) << ',' << get<1>(p.position) << ".\n";
                 }
-                environment[i][j].predatorList.push_back(p);
                 it--;
             }
         }
@@ -275,6 +283,8 @@ int main() {
     
     // Imprimindo os tipos dos elementos da matriz
     Environment::printEnvironment(environment, l, c);
+    cout << endl;
 
+    monkey01.perception(environment);
     return 0;
 }
