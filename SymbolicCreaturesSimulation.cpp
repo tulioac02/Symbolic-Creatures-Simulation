@@ -29,7 +29,7 @@ public:
     // Atributos do ambiente
     EnvironmentType type;
     tuple<int, int> position;
-    //Monkey monkey;
+    //Monkey* monkey = new Monkey();
     //Predator predator;
 
 
@@ -102,37 +102,91 @@ public:
             cout << endl;
         } 
     }
+
+    /*static void processMonkey(Monkey* monkey) {
+        // Processar o objeto Monkey
+        // ...
+    }*/
 };
 
-// Classe Animal (Abstrata)
-class Animal{
+// Classe abstrata Animal
+class Animal {
 public:
-    tuple<int, int> position;
+    tuple<int, int> position; // Tupla de inteiros para a posição
 
-    virtual void perception();
-    };
+    virtual void perception() = 0; // Função abstrata para percepção
+    virtual void randomWalk() = 0; // Função abstrata para caminhada aleatória
 
-// Classe Macaco (Herda de Animal)
-class Monkey : public Animal{
+    virtual ~Animal() {}  // Destrutor virtual
+};
+
+// Classe Monkey (herda de Animal)
+class Monkey : public Animal {
+private:
+    string name; // Nome do Monkey
+
 public:
+    // Construtor
+    Monkey() {
+        
+    }
+
+    // Destrutor
+    ~Monkey() override {}
+
+    // Getter para o nome
+    string getName() const {
+        return name;
+    }
+
+    // Setter para o nome
+    void setName(const string& n) {
+        name = n;
+    }
+
     void perception() override {
+        // Implemente o código da percepção do Monkey
+        cout << "Monkey " << name << " perceives its surroundings." << endl;
+    }
+
+    void randomWalk() override {
+        // Implemente o código da caminhada aleatória do Monkey
+        cout << "Monkey " << name << " is walking randomly." << endl;
     }
 };
 
-// Classe Macaco (Herda de Animal)
-class Predator : public Animal{
+// Classe Predator (herda de Animal)
+class Predator : public Animal {
+private:
+    int strength; // Força do Predator
+
 public:
-    // Enumerador para os tipos de ambiente
-    enum PredatorType {
-        TG, // Tiger
-        EA, // Eagle
-        SN  // Snake
-    };
-    
-    // Atributos do predador
-    PredatorType type;
-    
+    // Construtor
+    Predator() {
+        
+    }
+
+    // Destrutor
+    ~Predator() override {}
+
+    // Getter para a força
+    int getStrength() const {
+        return strength;
+    }
+
+    // Setter para a força
+    void setStrength(int s) {
+        strength = s;
+    }
+
     void perception() override {
+        // Implemente o código da percepção do Predator
+        cout << "Predator with strength " << strength << " perceives its surroundings." << endl;
+    }
+
+    void randomWalk() override {
+        // Implemente o código da caminhada aleatória do Predator
+        cout << "Predator with strength " << strength << " is walking randomly." << endl;
     }
 };
 
@@ -152,5 +206,22 @@ int main() {
     // Imprimindo os tipos dos elementos da matriz
     Environment::printEnvironment(environment, l, c);
     
+    Monkey* monkey = new Monkey(); // Alocação dinâmica do objeto Monkey
+    //Environment::processMonkey(monkey); // Chamada da função estática passando o ponteiro do objeto
+    delete monkey; // Liberar memória alocada para o objeto Monkey
+
+    /*Predator* predator = new Predator();
+
+    monkey->perception();
+    monkey->randomWalk();
+    cout << "Monkey name: " << monkey->getName() << endl;
+
+    predator->perception();
+    predator->randomWalk();
+    cout << "Predator strength: " << predator->getStrength() << endl;
+   
+    delete[] predator;*/
+    //delete[] monkey;
+
     return 0;
 }
