@@ -53,11 +53,16 @@ public:
         name = n;
     }
 
-    void perception(Environment environment[10][10]) {
+    void perception(Environment environment[10][10], int l, int c) {
         // Implemente o código da percepção do Monkey
-        cout << "Position of monkey is " << get<0>(this->position) << ',' << get<1>(this->position) << ".\n"; 
-        for(int i = get<0>(this->position); i< get<0>(this->position)+3; i++){
-            for(int j = get<1>(this->position); j < get<1>(this->position)+3; j++){
+        cout << "Position of monkey is " << get<0>(this->position) << ',' << get<1>(this->position) << ".\n";
+        int lmin = get<0>(this->position)-1;
+        int lmax = get<0>(this->position)+2;
+        int cmin = get<1>(this->position)-1;
+        int cmax = get<1>(this->position)+2;
+
+        for(int i = lmin; i < lmax; i++){
+            for(int j = cmin; j < cmax; j++){
                 cout << "Perception of position " << i << ',' << j << endl;
             }
         }
@@ -217,12 +222,12 @@ public:
     }
 
     // Função para adicionar macacos no ambiente
-    static void addMonkey(Environment environment[10][10], int l, int c, Monkey m) {
+    static void addMonkey(Environment environment[10][10], int l, int c, Monkey& m) {
         srand(time(nullptr)); // Configuração da semente do gerador de números aleatórios
         int it = 1;
-        while(it != 0){
+        while (it != 0) {
             int i = rand() % l, j = rand() % c;
-            if(environment[i][j].type == GR && environment[i][j].monkeyList.empty()){
+            if (environment[i][j].type == GR && environment[i][j].monkeyList.empty()) {
                 environment[i][j].monkeyList.push_back(m);
                 m.position = environment[i][j].position;
                 cout << "Monkey added in position " << get<0>(m.position) << ',' << get<1>(m.position) << ".\n";
@@ -231,7 +236,8 @@ public:
         }
     }
 
-    static void addPredator(Environment environment[10][10], int l, int c, Predator p) {
+
+    static void addPredator(Environment environment[10][10], int l, int c, Predator& p) {
         srand(time(nullptr)); // Configuração da semente do gerador de números aleatórios
         int it = 1;
         while(it != 0){
@@ -285,6 +291,6 @@ int main() {
     Environment::printEnvironment(environment, l, c);
     cout << endl;
 
-    monkey01.perception(environment);
+    monkey01.perception(environment, l, c);
     return 0;
 }
