@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -23,24 +24,33 @@ int const numMonkeys = 4;
 
 class Animal
 {
-public:
-    Animal() {}
-};
-
-
-// Classe Monkey (herda de Animal)
-class Monkey : public Animal
-{
 private:
-    tuple<int, int> position; // Nome do Monkey
-
+    string name;
+    tuple<int, int> position;
 public:
-    // Construtor
-    Monkey()
+    // Construtor padrão
+    Animal()
     {
     }
 
-    tuple<int, int> getPosition() const
+    // Construtor com parâmetros
+    Animal(std::string n) : name(n)
+    {
+    }
+
+    //Getter e Setter para Position
+    string getName()
+    {
+        return name;
+    }
+
+    void setName(string n)
+    {
+        name = n;
+    }
+
+    //Getter e Setter para Position
+    tuple<int, int> getPosition()
     {
         return position;
     }
@@ -51,55 +61,65 @@ public:
     }
 };
 
-// Classe Predator (herda de Animal)
-class Predator : Animal
+// Classe Monkey (herda de Animal)
+class Monkey : public Animal
 {
+    public:
+    // Construtor padrão de Monkey
+    Monkey()
+    {
+    }
+
+    // Construtor com parâmetros específicos de Monkey
+    Monkey(string n) : Animal(n)
+    {
+    }
+};
+
+// Classe Predator (herda de Animal)
+class Predator : public Animal
+{
+private:
+
 public:
-    enum predatorType
+    enum PredatorType
     {
         TI, // Tiger
         EA, // Eagle
         SN  // Snake
     };
 
-    int strength; // Força do Predator]
-    predatorType type;
-    tuple<int, int> position;
+    // Tipo do Predador
+    PredatorType type;
 
-    // Construtor
-
-    Predator(predatorType t)
+    // Construtor padrão de Predator
+    Predator()
     {
-        this->type = t;
     }
 
-    static std::vector<Predator::predatorType> getPredatorTypes()
+    // Construtor com parâmetros específicos de Predator
+    Predator(const string& n, PredatorType t) : Animal(n), type(t)
     {
-        return {Predator::predatorType::TI, Predator::predatorType::EA, Predator::predatorType::SN};
     }
 
-    // Getter para a força
-    int getStrength() const
+    static vector<Predator::PredatorType> getPredatorTypes()
     {
-        return strength;
+        return {Predator::PredatorType::TI, Predator::PredatorType::EA, Predator::PredatorType::SN};
     }
 
-    // Setter para a força
-    void setStrength(int s)
+    static string predatorTypeToString(PredatorType type)
     {
-        strength = s;
-    }
-
-    // Getter para a posição
-    tuple<int, int> getPosition() const
-    {
-        return position;
-    }
-
-    // Setter para a posição
-    void setPosition(const tuple<int, int> &pos)
-    {
-        position = pos;
+        switch (type)
+        {
+        case SN:
+            return "Snake";
+        case TI:
+            return "Tiger";
+        case EA:
+            return "Eagle";
+        default:
+            return "Valor inválido";
+        }
     }
 };
 
@@ -176,59 +196,47 @@ public:
     }
 
     // Função para imprimir o ambiente
-    static void printEnvironment(Environment environment[linhaMatriz][colunaMatriz])
+static void printEnvironment(Environment environment[linhaMatriz][colunaMatriz])
+{
+    for (int i = 0; i < linhaMatriz; i++)
     {
-        for (int i = 0; i < linhaMatriz; i++)
+        for (int j = 0; j < colunaMatriz; j++)
         {
-            for (int j = 0; j < colunaMatriz; j++)
+            if (!environment[i][j].monkeyList.empty())
             {
-                if (environment[i][j].type == GR)
+                cout << YELLOW;
+            }
+            else if (!environment[i][j].predatorList.empty())
+            {
+                if (environment[i][j].predatorList.front().type == Predator::SN)
                 {
-                    if (!environment[i][j].monkeyList.empty())
-                    {
-                        cout << YELLOW << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                             << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
-                    }
-                    else if (environment[i][j].predatorList.front().type == Predator::SN)
-                    {
-                        cout << GREEN << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                             << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
-                    }
-                    else if (environment[i][j].predatorList.front().type == Predator::TI)
-                    {
-                        cout << MAGENTA << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                             << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
-                    }
-                    else if (environment[i][j].predatorList.front().type == Predator::EA)
-                    {
-                        cout << BLUE << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                             << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
-                    }
-                    else
-                    {
-                        cout << RESET << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                             << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
-                    }
+                    cout << GREEN;
                 }
-                else if (environment[i][j].type == HT)
+                else if (environment[i][j].predatorList.front().type == Predator::TI)
                 {
-                    cout << CYAN << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                         << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
+                    cout << MAGENTA;
                 }
-                else if (environment[i][j].type == MT)
+                else if (environment[i][j].predatorList.front().type == Predator::EA)
                 {
-                    cout << CYAN << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                         << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
-                }
-                else if (environment[i][j].type == LT)
-                {
-                    cout << CYAN << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
-                         << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
+                    cout << BLUE;
                 }
             }
-            cout << endl;
+            else if (!environment[i][j].monkeyList.empty() && !environment[i][j].predatorList.empty())
+            {
+                cout << RED;
+            }
+            else
+            {
+                cout << RESET;
+            }
+
+            cout << "|" << Environment::environmentTypeToString(environment[i][j].type) << " ("
+                << get<0>(environment[i][j].position) << "," << get<1>(environment[i][j].position) << ")| " << RESET;
         }
+        cout << endl;
     }
+    cout << endl;
+}
 
     // Função para adicionar macacos no ambiente
     static void addMonkey(Environment environment[linhaMatriz][colunaMatriz], Monkey &monk)
@@ -242,13 +250,13 @@ public:
             {
                 environment[i][j].monkeyList.push_back(monk);
                 monk.setPosition(environment[i][j].position);
-                cout << "Monkey added in position " << get<0>(monk.getPosition()) << ',' << get<1>(monk.getPosition()) << ".\n";
+                cout << monk.getName() << " added in position " << get<0>(monk.getPosition()) << ',' << get<1>(monk.getPosition()) << ".\n";
                 it--;
             }
         }
     }
 
-    static void addPredator(Environment environment[linhaMatriz][colunaMatriz], Predator &p)
+    static void addPredator(Environment environment[linhaMatriz][colunaMatriz], Predator &pred)
     {
         srand(time(nullptr)); // Configuração da semente do gerador de números aleatórios
         int it = 1;
@@ -257,19 +265,19 @@ public:
             int i = rand() % linhaMatriz, j = rand() % colunaMatriz;
             if (environment[i][j].type == GR && environment[i][j].monkeyList.empty() && environment[i][j].predatorList.empty())
             {
-                environment[i][j].predatorList.push_back(p);
-                p.position = environment[i][j].position;
-                if (p.type == Predator::EA)
+                environment[i][j].predatorList.push_back(pred);
+                pred.setPosition(environment[i][j].position);
+                if (pred.type == Predator::EA)
                 {
-                    cout << "Eagle added in position " << get<0>(p.position) << ',' << get<1>(p.position) << ".\n";
+                    cout << "Eagle added in position " << get<0>(pred.getPosition()) << ',' << get<1>(pred.getPosition()) << ".\n";
                 }
-                else if (p.type == Predator::TI)
+                else if (pred.type == Predator::TI)
                 {
-                    cout << "Tiger added in position " << get<0>(p.position) << ',' << get<1>(p.position) << ".\n";
+                    cout << "Tiger added in position " << get<0>(pred.getPosition()) << ',' << get<1>(pred.getPosition()) << ".\n";
                 }
-                else if (p.type == Predator::SN)
+                else if (pred.type == Predator::SN)
                 {
-                    cout << "Snake added in position " << get<0>(p.position) << ',' << get<1>(p.position) << ".\n";
+                    cout << "Snake added in position " << get<0>(pred.getPosition()) << ',' << get<1>(pred.getPosition()) << ".\n";
                 }
                 it--;
             }
@@ -277,6 +285,7 @@ public:
     }
 };
 
+// Classe das interações dos objetos
 class Sobreviver
 {
 private:
@@ -312,58 +321,96 @@ public:
         }
     }
 
+    //Função de percepção do Macaco (Incompleto)
     void perception(Monkey &monk)
     {
-        // Implemente o código da percepção do Monkey
-        int raio = 3;
-        tuple<int, int> posM = monk.getPosition();
+        int raio = 1;
+        int lmin = get<0>(monk.getPosition()) - raio;
+        int lmax = get<0>(monk.getPosition()) + raio;
+        int cmin = get<1>(monk.getPosition()) - raio;
+        int cmax = get<1>(monk.getPosition()) + raio;
 
-        int lmin = get<0>(posM) - raio;
-        int lmax = get<0>(posM) + raio;
-        int cmin = get<1>(posM) - raio;
-        int cmax = get<1>(posM) + raio;
+        list<Environment*> securityOptions; // Lista de opções seguras (arvores)
+        list<Environment*> neutralOptions; // Lista de oções neutras (sem predador e sem arvores)
+        list<Environment*> noSecurityOptions; // Lista de opções com predadores
+
+        cout << "Perception of " << monk.getName() << " in the position (" << get<0>(monk.getPosition()) << ","
+        << get<1>(monk.getPosition()) << ") is: " << endl;
 
         for (int i = lmin; i <= lmax; i++)
         {
             for (int j = cmin; j <= cmax; j++)
             {
-                if (i >= 0 && i < 10 && j >= 0 && j < 10)
+                if (i >= 0 && i < 10 && j >= 0 && j < 10 && monk.getPosition() != environment[i][j].position)
                 {
-                    if (!environment[i][j].predatorList.empty())
-                    {
-                        randomWalk(monk);
+                    if(environment[i][j].type != Environment::GR){
+                        securityOptions.push_back(&environment[i][j]);
+                        cout << "Security position (" << i << "," << j << ") add in security list." << endl; 
+                    }
+                    if(environment[i][j].predatorList.empty()){
+                        neutralOptions.push_back(&environment[i][j]);
+                        cout << "Neutral position (" << i << "," << j << ") add in neutral list." << endl; 
+                    }
+                    else{
+                        noSecurityOptions.push_back(&environment[i][j]);
+                        cout << "No security position (" << i << "," << j << ") add in no security list." << endl;
                     }
                 }
             }
         }
+
+        if(noSecurityOptions.empty()){
+            randomWalk(monk);
+        }
+        else{
+            monkeyStrategyWalk(securityOptions);
+        }
     }
 
-    void perception(Predator &predator)
+
+    //Função de percepção do Predador (Incompleto)
+    void perception(Predator &pred)
     {
-        // Implemente o código da percepção do Monkey
-        int raio = 3;
-        tuple<int, int> posM = predator.getPosition();
+        int raio = 1;
+        int lmin = get<0>(pred.getPosition()) - raio;
+        int lmax = get<0>(pred.getPosition()) + raio;
+        int cmin = get<1>(pred.getPosition()) - raio;
+        int cmax = get<1>(pred.getPosition()) + raio;
 
-        int lmin = get<0>(posM) - raio;
-        int lmax = get<0>(posM) + raio;
-        int cmin = get<1>(posM) - raio;
-        int cmax = get<1>(posM) + raio;
+        list<Environment*> neutralOptions; // Lista de oções neutras (sem macacos)
+        list<Environment*> targetOptions; // Lista de oções alvo (com macacos)
+
+        cout << "Perception of " << pred.getName() << " in the position (" << get<0>(pred.getPosition()) << ","
+        << get<1>(pred.getPosition()) << ") is: " << endl;
 
         for (int i = lmin; i <= lmax; i++)
         {
             for (int j = cmin; j <= cmax; j++)
             {
-                if (i >= 0 && i < 10 && j >= 0 && j < 10)
+                if (i >= 0 && i < 10 && j >= 0 && j < 10 && pred.getPosition() != environment[i][j].position)
                 {
-                    if (!environment[i][j].monkeyList.empty())
+                    if (environment[i][j].monkeyList.empty())
                     {
-                        randomWalk(predator);
+                        neutralOptions.push_back(&environment[i][j]);
+                        cout << "Neutral position (" << i << "," << j << ") add in neutral list." << endl; 
+                    }
+                    else if(!environment[i][j].monkeyList.empty()){
+                        targetOptions.push_back(&environment[i][j]);
+                        cout << "Target position (" << i << "," << j << ") add in target list." << endl; 
                     }
                 }
             }
         }
+
+        if(targetOptions.empty()){
+            randomWalk(pred);
+        }
+        else{
+            predatorStrategyWalk(targetOptions);
+        }
     }
 
+    //Função de andar aleatória para macaco
     void randomWalk(Monkey &monk)
     {
         // Implemente o código da caminhada aleatória do Monkey
@@ -378,13 +425,13 @@ public:
                 {
                     if (environment[i][j].monkeyList.empty() && environment[i][j].predatorList.empty())
                     {
-                        cout << "Position of befor walk monkey is " << get<0>(monk.getPosition()) << ',' << get<1>(monk.getPosition()) << ".\n";
+                        cout << "Position of " << monk.getName() << " before walk is " << get<0>(monk.getPosition()) << ',' << get<1>(monk.getPosition()) << ".\n";
 
                         environment[get<0>(posM)][get<1>(posM)].monkeyList.pop_front();
                         monk.setPosition(environment[i][j].position);
                         environment[i][j].monkeyList.push_front(monk);
 
-                        cout << "Position of after walk monkey is " << get<0>(monk.getPosition()) << ',' << get<1>(monk.getPosition()) << ".\n";
+                        cout << "Position of " << monk.getName() << " after walk is " << get<0>(monk.getPosition()) << ',' << get<1>(monk.getPosition()) << ".\n\n";
                         Environment::printEnvironment(environment);
                         return;
                     }
@@ -395,11 +442,12 @@ public:
         return;
     }
 
-    void randomWalk(Predator &predator)
+    //Função de andar aleatória para predador
+    void randomWalk(Predator &pred)
     {
         // Implemente o código da caminhada aleatória do Monkey
         int raio = 1;
-        tuple<int, int> posM = predator.getPosition();
+        tuple<int, int> posM = pred.getPosition();
 
         for (int i = get<0>(posM) - raio; i <= get<0>(posM) + raio; i++)
         {
@@ -409,13 +457,13 @@ public:
                 {
                     if (environment[i][j].monkeyList.empty() && environment[i][j].predatorList.empty())
                     {
-                        cout << "Position of befor walk predator is " << get<0>(predator.getPosition()) << ',' << get<1>(predator.getPosition()) << ".\n";
+                        cout << "Position of " << pred.getName() << " before walk is " << get<0>(pred.getPosition()) << ',' << get<1>(pred.getPosition()) << ".\n";
 
                         environment[get<0>(posM)][get<1>(posM)].predatorList.pop_front();
-                        predator.setPosition(environment[i][j].position);
-                        environment[i][j].predatorList.push_front(predator);
+                        pred.setPosition(environment[i][j].position);
+                        environment[i][j].predatorList.push_front(pred);
 
-                        cout << "Position of after walk predator is " << get<0>(predator.getPosition()) << ',' << get<1>(predator.getPosition()) << ".\n";
+                        cout << "Position of " << pred.getName() << " after walk is " << get<0>(pred.getPosition()) << ',' << get<1>(pred.getPosition()) << ".\n\n";
                         Environment::printEnvironment(environment);
                         return;
                     }
@@ -424,6 +472,20 @@ public:
         }
 
         return;
+    }
+
+    //Função de andar não aleatória do macaco (incompleta)
+    /*Está função vai receber a lista de caminhos não seguros, dessa forma, vai se mover para a direção oposta
+    de um pretador identificado ou para uma árvore que o proteja*/
+    void monkeyStrategyWalk(list<Environment*> options){
+        cout << "Action to implement.\n\n";
+    }
+
+    //Função de andar não aleatória do predador (incompleta)
+    /*Está função vai receber a lista de alvos. Será escolhido um alvo aleatório e se mover para a lista
+    de predadores da mesma função do seu alvo*/
+    void predatorStrategyWalk(list<Environment*> options){
+        cout << "Action to implement.\n\n";
     }
 };
 
@@ -441,40 +503,38 @@ int main()
     Environment::addTree(environment, Environment::LT, 4);
 
     // Adicionando macacos
-    list<Monkey> monkeyList;
+    list<Monkey> monkeysList;
     for (int i = 0; i < numMonkeys; i++)
     {
-        Monkey monkey;
+        Monkey monkey("Monkey" + to_string(i+1));
         Environment::addMonkey(environment, monkey);
-        monkeyList.push_back(monkey);
+        monkeysList.push_back(monkey);
     }
 
     // Adicionando predadores
-    list<Predator> predatorList;
-    std::vector<Predator::predatorType> predatorTypes = Predator::getPredatorTypes();
+    list<Predator> predatorsList;
+    vector<Predator::PredatorType> predatorTypes = Predator::getPredatorTypes();
     for (const auto& type : predatorTypes)
     {
-        Predator predador(type);
+        Predator predador(Predator::predatorTypeToString(type), type);
         Environment::addPredator(environment, predador);
-        predatorList.push_back(predador);
+        predatorsList.push_back(predador);
     }
     cout << endl;
-
 
     Sobreviver sobreviver = Sobreviver(environment);
     Environment::printEnvironment(sobreviver.getEnvironment());     // Imprimindo os tipos dos elementos da matriz
-    
-    cout << endl;
 
-    for (auto &monkey : monkeyList)
+
+    for (auto &monkey : monkeysList)
     {
-        sobreviver.randomWalk(monkey);
+        //sobreviver.randomWalk(monkey);
         sobreviver.perception(monkey);
     }
 
-    for (auto &predator : predatorList)
+    for (auto &predator : predatorsList)
     {
-        sobreviver.randomWalk(predator);
+        //sobreviver.randomWalk(predator);
         sobreviver.perception(predator);
     }
 
