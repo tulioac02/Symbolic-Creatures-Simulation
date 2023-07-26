@@ -310,9 +310,8 @@ public:
             {
                 environment[i][j].monkeyList.push_back(monk);  // Adiciona o ponteiro na lista de monkeyList
                 monk->setPosition(environment[i][j].position); // Define a posição do Monkey através do ponteiro
-                cout << environment[i][j].monkeyList.back()->getName() << " added in position (" << get<0>(environment[i][j].monkeyList.back()->getPosition()) << ',' << get<1>(environment[i][j].monkeyList.back()->getPosition())
-                     << ").\n";
-                cout << "O endereco de memoria de " << environment[i][j].monkeyList.back()->getName() << " na funcao addMonkey e: " << environment[i][j].monkeyList.back() << endl;
+                cout << environment[i][j].monkeyList.back()->getName() << " added in position ("<< get<0>(environment[i][j].monkeyList.back()->getPosition()) << ','<< get<1>(environment[i][j].monkeyList.back()->getPosition())<< ").\n";
+                //cout << "O endereco de memoria de " << environment[i][j].monkeyList.back()->getName() << " na funcao addMonkey e: " << environment[i][j].monkeyList.back() << endl;
                 it--;
             }
         }
@@ -333,17 +332,17 @@ public:
                 if (pred.type == Predator::EA)
                 {
                     cout << "Eagle added in position (" << get<0>(environment[i][j].predatorList.back()->getPosition()) << ',' << get<1>(environment[i][j].predatorList.back()->getPosition()) << ").\n";
-                    cout << "O endereco de memoria de " << environment[i][j].predatorList.back()->getName() << " na funcao addPredator e: " << environment[i][j].predatorList.back() << endl;
+                    //cout << "O endereco de memoria de " << environment[i][j].predatorList.back()->getName() << " na funcao addPredator e: " << environment[i][j].predatorList.back() << endl;
                 }
                 else if (pred.type == Predator::TI)
                 {
                     cout << "Tiger added in position (" << get<0>(environment[i][j].predatorList.back()->getPosition()) << ',' << get<1>(environment[i][j].predatorList.back()->getPosition()) << ").\n";
-                    cout << "O endereco de memoria de " << environment[i][j].predatorList.back()->getName() << " na funcao addPredator e: " << environment[i][j].predatorList.back() << endl;
+                    //cout << "O endereco de memoria de " << environment[i][j].predatorList.back()->getName() << " na funcao addPredator e: " << environment[i][j].predatorList.back() << endl;
                 }
                 else if (pred.type == Predator::SN)
                 {
                     cout << "Snake added in position (" << get<0>(environment[i][j].predatorList.back()->getPosition()) << ',' << get<1>(environment[i][j].predatorList.back()->getPosition()) << ").\n";
-                    cout << "O endereco de memoria de " << environment[i][j].predatorList.back()->getName() << " na funcao addPredator e: " << environment[i][j].predatorList.back() << endl;
+                    //cout << "O endereco de memoria de " << environment[i][j].predatorList.back()->getName() << " na funcao addPredator e: " << environment[i][j].predatorList.back() << endl;
                 }
                 it--;
             }
@@ -400,7 +399,7 @@ public:
 
         if (noSecurityOptions.empty())
         {
-            cout << monk->getName() << " random walking." << endl;
+            cout << "Nothing important was noticed. " << monk->getName() << " random walking." << endl;
             randomWalk(monk);
         }
         else
@@ -448,7 +447,7 @@ public:
                     else if (!environment[i][j].predatorList.empty())
                     {
                         noSecurityOptions.push_back(&environment[i][j]);
-                        cout << "No security position (" << i << "," << j << ") add in no security list." << endl;
+                        cout << environment[i][j].predatorList.front()->getName() << " in the position (" << i << "," << j << "), add in no security list." << endl;
                     }
                 }
             }
@@ -461,7 +460,10 @@ public:
     {
         int monkScreamsX = get<0>(monkScreams->getPosition());
         int monkScreamsY = get<1>(monkScreams->getPosition());
-        cout << "Macaco GRITANDO (" << monkScreamsX << "," << monkScreamsY << ")" << endl;
+        cout << monkScreams->getName() << " in the position (" << monkScreamsX << "," << monkScreamsY
+        << ") scream signal of " << envPredator->predatorList.front()->getName()
+        << " in the position (" << get<0>(envPredator->predatorList.front()->getPosition()) << ","
+        << get<1>(envPredator->predatorList.front()->getPosition()) << ")." << endl;
 
         if (monkeyOptions.empty())
             return;
@@ -482,7 +484,8 @@ public:
             list<Environment *> monkeyOptions;     // Lista de opções com macacos
             list<Environment *> noSecurityOptions; // Lista de opções com predadores
 
-            cout << "Macaco ouvindo... (" << monkHearX << "," << monkHearY << ")" << endl;
+            cout << monkHear->getName() << " in the position (" << monkHearX << "," << monkHearY
+            << ") heard the signal from " << envPredator->predatorList.front()->getName() << ".\n" << endl;
 
             tie(securityOptions, monkeyOptions, noSecurityOptions) = searchAreaMonkey(monkHear, securityOptions, monkeyOptions, noSecurityOptions);
 
@@ -596,6 +599,7 @@ public:
                             (pred->type == Predator::SN && (environment[predX][predY].type != Environment::MT || environment[predX][predY].type != Environment::LT)))
                         {
                             targetOptions.push_back(&environment[i][j]);
+                            cout << targetOptions.back()->monkeyList.front()->getName() << " in position (" << i << "," << j << ") add in target list." << endl;
                         }
                     }
                 }
@@ -604,6 +608,7 @@ public:
 
         if (targetOptions.empty())
         {
+            cout << "Nothing important was noticed. " << pred->getName() << " random walking." << endl;
             randomWalk(pred);
         }
         else
@@ -766,7 +771,8 @@ public:
         monk->setPosition(environment[x][y].position);
         environment[x][y].monkeyList.push_front(monk);
 
-        cout << "Movendo para árvore" << endl;
+        cout << monk->getName() << " move to type tree " << Environment::environmentTypeToString(op->type) <<
+        " in the position (" << get<0>(op->position)<< "," << get<0>(op->position) << ").\n\n";
     }
 
     // Macaco vai em direção oposta ao predador
@@ -793,7 +799,8 @@ public:
         monk->setPosition(environment[x][y].position);
         environment[x][y].monkeyList.push_front(monk);
 
-        cout << "Movendo para o lado oposto" << endl;
+        cout << monk->getName() << " moving to the opposite side to position (" << get<0>(environment[x][y].position)
+        << ", " << get<1>(environment[x][y].position) << ").\n"<< endl;
     }
 
     // Função de andar não aleatória do predador (incompleta)
@@ -826,11 +833,11 @@ public:
         // Confere se existe macaco para ser atacado
         if (!environment[x][y].monkeyList.empty())
         {
-            cout << pred->getName() << " killed " << monk->getName() << " in position (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ").\n";
             // Predador irá atacar apenas no ambiente que ele consegue visualizar
             if (
-                (environment[x][y].type == Environment::GR || environment[x][y].predatorList.front()->type == Predator::TI && environment[x][y].type == Environment::LT) || (environment[x][y].predatorList.front()->type == Predator::EA && environment[x][y].type == Environment::HT) || (environment[x][y].predatorList.front()->type == Predator::SN && (environment[x][y].type == Environment::MT || environment[x][y].type == Environment::LT)))
+                (environment[x][y].type == Environment::GR || (environment[x][y].predatorList.front()->type == Predator::TI && environment[x][y].type == Environment::LT)) || (environment[x][y].predatorList.front()->type == Predator::EA && environment[x][y].type == Environment::HT) || (environment[x][y].predatorList.front()->type == Predator::SN && (environment[x][y].type == Environment::MT || environment[x][y].type == Environment::LT)))
             {
+                cout << pred->getName() << " walking to position (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ") and killed " << monk->getName() << ".\n";
                 predatorAttack(pred, monk);
             }
         }
@@ -873,7 +880,7 @@ public:
                 monk->setPosition(environment[i][j].position);
                 environment[i][j].monkeyList.push_front(monk);
                 moveu = true;
-                cout << "New position of " << monk->getName() << " is (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ").\n";
+                cout << "New position of " << monk->getName() << " is (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ").\n" << endl;
                 Environment::printEnvironment(environment);
             }
         }
@@ -900,7 +907,7 @@ int main()
         Monkey *monkey = new Monkey("Monkey" + to_string(i + 1)); // Cria um novo Monkey na memória e armazena seu ponteiro
         monkeysList.push_back(monkey);                            // Adiciona o ponteiro para o Monkey na lista de ponteiros
         Environment::addMonkey(environment, monkey);              // Passa o ponteiro para a função addMonkey
-        cout << "O endereco de memoria de " << monkeysList.back()->getName() << " na funcao MAIN e: " << monkeysList.back() << endl;
+        //cout << "O endereco de memoria de " << monkeysList.back()->getName() << " na funcao MAIN e: " << monkeysList.back() << endl;
     }
 
     // Adicionando predadores
@@ -911,7 +918,7 @@ int main()
         Predator *predator = new Predator(Predator::predatorTypeToString(type), type); // Cria um novo Predator na memória e armazena seu ponteiro
         Environment::addPredator(environment, *predator);                              // Passa o objeto Predator por referência para a função addPredator
         predatorsList.push_back(predator);                                             // Adiciona o ponteiro para o Predator na lista de ponteiros
-        cout << "O endereco de memoria de " << predatorsList.back()->getName() << " na funcao MAIN e: " << predatorsList.back() << endl;
+        //cout << "O endereco de memoria de " << predatorsList.back()->getName() << " na funcao MAIN e: " << predatorsList.back() << endl;
     }
     cout << endl;
 
@@ -919,19 +926,17 @@ int main()
     Sobreviver sobreviver = Sobreviver(environment);
     Environment::printEnvironment(sobreviver.getEnvironment()); // Imprimindo os tipos dos elementos da matriz
 
-    int epoca = 3;
+    size_t epoca = 10;
 
     for (size_t i = 0; i < epoca; i++)
     {
         for (auto &monkey : monkeysList)
         {
-            // sobreviver.randomWalk(monkey);
             sobreviver.perception(monkey);
         }
 
         for (auto &predator : predatorsList)
         {
-            // sobreviver.randomWalk(predator);
             sobreviver.perception(predator);
         }
     }
