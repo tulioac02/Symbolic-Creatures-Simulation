@@ -6,6 +6,7 @@
 #include <list>
 #include <string>
 #include <cmath>
+#include <map>
 
 using namespace std;
 
@@ -71,6 +72,7 @@ class Monkey : public Animal
 {
 private:
     vector<vector<float>> sinal;
+    map<int, int> heardSignal;
 
 public:
     // Construtor padrão de Monkey
@@ -120,6 +122,29 @@ public:
             {
                 sinal[i][j] = newSinal[i][j];
             }
+        }
+    }
+
+    // Getter para o vetor sinal
+    const map<int, int> &getHeardSignal() const
+    {
+        return heardSignal;
+    }
+
+    void setHeardSignal(const map<int, int> &newSinal)
+    {
+        heardSignal = newSinal;
+    }
+
+    void printSignal()
+    {
+        for (const auto &linha : sinal)
+        {
+            for (const auto &elemento : linha)
+            {
+                std::cout << elemento << " ";
+            }
+            std::cout << std::endl; // Pula para a próxima linha após cada linha do vetor bidimensional
         }
     }
 };
@@ -495,6 +520,28 @@ public:
             int type = getPosicaoMaiorValor(listSignal);
             // mover para árvore ou lado oposto do grito
 
+            // se ouviu e viu o predador, aumenta o sinal
+            bool sawPredator = false;
+            for (const auto &pred : noSecurityOptions)
+            {
+                if (pred->predatorList.front()->type == type)
+                {
+                    vector<vector<float>> novoSinal = monkHear->getSinal();
+                    novoSinal[type][posSignal] = max(0.0f, monkHear->getSinal()[type][posSignal] + 0.1f);
+                    monkHear->setSinal(novoSinal);
+                    sawPredator = true;
+                    monkHear->printSignal();
+                }
+            }
+
+            // se ouviu e não viu o predador, guarda o sinal
+            if (!sawPredator)
+            {
+                map<int, int> m_signal;
+                m_signal.insert(make_pair(type, posSignal));
+                monkHear->setHeardSignal(m_signal);
+            }
+
             if (Predator::TI == type)
             {
                 // Deve se proteger em MT
@@ -854,10 +901,20 @@ public:
             }
         }
 
-        // Reduz o sinal do predador mais forte
-        vector<vector<float>> novoSinal = monk->getSinal();
-        novoSinal[pred->type][maxSignalIndex] = max(0.0f, monk->getSinal()[pred->type][maxSignalIndex] - 0.1f);
-        monk->setSinal(novoSinal);
+        // Reduz o sinal do predador mais forte caso o macaco já tenha sido alertado
+        if (!monk->getHeardSignal().empty())
+        {
+            for (const auto &signal : monk->getHeardSignal())
+            {
+                if (pred->type == signal.first)
+                {
+                    vector<vector<float>> novoSinal = monk->getSinal();
+                    novoSinal[pred->type][maxSignalIndex] = max(0.0f, monk->getSinal()[pred->type][maxSignalIndex] - 0.1f);
+                    monk->setSinal(novoSinal);
+                    monk->printSignal();
+                }
+            }
+        }
 
         cout << "Morte - Sinal redefinido.\n\n";
         Environment::printEnvironment(environment);
@@ -919,7 +976,7 @@ int main()
     Sobreviver sobreviver = Sobreviver(environment);
     Environment::printEnvironment(sobreviver.getEnvironment()); // Imprimindo os tipos dos elementos da matriz
 
-    int epoca = 3;
+    int epoca = 20;
 
     for (size_t i = 0; i < epoca; i++)
     {
