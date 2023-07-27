@@ -149,6 +149,7 @@ public:
         setName(n); // Define o nome do objeto
         filename = getName() + ".txt"; // Nome do arquivo é o nome do objeto seguido de ".txt"
         file.open(filename);           // Abre o arquivo para escrita
+        file << "Iteração|Macaco|Animal|Sinal|Valor\n";
 
         // Preenchendo o vetor com números aleatórios entre 0 e 1
         for (int i = 0; i < 3; i++)
@@ -194,51 +195,14 @@ public:
         // Incrementa o contador de iterações toda vez que a função é chamada
         printSignalCount++;
 
-        // Imprimir os sinais no arquivo
-        file << "Iteration number: " << printSignalCount << "\n";
-
         for (size_t i = 0; i < sinal.size(); i++)
         {
-            string predatorName = Predator::predatorTypeToString(static_cast<Predator::PredatorType>(i));
-            file << getName() << " tell the signs to the predator " << predatorName << " is:" << endl;
-
             // Imprime os elementos do início até a metade do vetor
-            for (size_t j = 0; j < sinal[i].size() / 2; j++)
-            {
-                file << "|Sig:(" << j << ") - Val:(" << std::fixed << std::setprecision(3) << sinal[i][j] << ")| ";
-            }
-
-            file << endl; // Quebra a linha após a primeira metade
-
-            // Imprime a segunda metade dos elementos na próxima linha
-            for (size_t j = sinal[i].size() / 2; j < sinal[i].size(); j++)
-            {
-                file << "|Sig:(" << j << ") - Val:(" << fixed << setprecision(3) << sinal[i][j] << ")| ";
-            }
-
-            file << endl; // Pula para a próxima linha após imprimir todos os elementos
-
-            file << endl;
-        }
-
-        // Imprimir o maior sinal associado para cada animal
-        for (size_t i = 0; i < sinal.size(); i++)
-        {
-            string predatorName = Predator::predatorTypeToString(static_cast<Predator::PredatorType>(i));
-            float maxValue = 0;
-            size_t maxSign = 0;
-
             for (size_t j = 0; j < sinal[i].size(); j++)
             {
-                if (sinal[i][j] > maxValue)
-                {
-                    maxValue = sinal[i][j];
-                    maxSign = j;
-                }
+                string predatorName = Predator::predatorTypeToString(static_cast<Predator::PredatorType>(i));
+                file << printSignalCount << "|" << getName() << "|" << predatorName << "|" << j << "|" << std::fixed << std::setprecision(3) << sinal[i][j] << endl;
             }
-
-            cout << getName() << " has the highest index for the symbol " << maxSign << " with value "
-            << fixed << setprecision(3) << maxValue << " for the predator " << predatorName << "." << endl;
         }
     }
 };
