@@ -7,6 +7,8 @@
 #include <string>
 #include <cmath>
 #include <map>
+#include <iomanip>
+#include <fstream>
 
 using namespace std;
 
@@ -67,88 +69,6 @@ public:
     }
 };
 
-// Classe Monkey (herda de Animal)
-class Monkey : public Animal
-{
-private:
-    vector<vector<float>> sinal;
-    map<int, int> heardSignal;
-
-public:
-    // Construtor padrão de Monkey
-    Monkey() : sinal(3, vector<float>(10))
-    {
-        // Configurando a semente para geração de números aleatórios
-        srand(time(nullptr));
-
-        // Preenchendo o vetor com números aleatórios entre 0 e 1
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                sinal[i][j] = std::abs(static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
-            }
-        }
-    }
-
-    // Construtor com parâmetros específicos de Monkey
-    Monkey(string n) : Animal(n), sinal(3, vector<float>(10))
-    {
-        // Configurando a semente para geração de números aleatórios
-        srand(time(nullptr));
-
-        // Preenchendo o vetor com números aleatórios entre 0 e 1
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                sinal[i][j] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-            }
-        }
-    }
-
-    // Getter para o vetor sinal
-    const vector<vector<float>> &getSinal() const
-    {
-        return sinal;
-    }
-
-    // Set para o vetor sinal
-    void setSinal(const vector<vector<float>> &newSinal)
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                sinal[i][j] = newSinal[i][j];
-            }
-        }
-    }
-
-    // Getter para o vetor sinal
-    const map<int, int> &getHeardSignal() const
-    {
-        return heardSignal;
-    }
-
-    void setHeardSignal(const map<int, int> &newSinal)
-    {
-        heardSignal = newSinal;
-    }
-
-    void printSignal()
-    {
-        for (const auto &linha : sinal)
-        {
-            for (const auto &elemento : linha)
-            {
-                std::cout << elemento << " ";
-            }
-            std::cout << std::endl; // Pula para a próxima linha após cada linha do vetor bidimensional
-        }
-    }
-};
-
 // Classe Predator (herda de Animal)
 class Predator : public Animal
 {
@@ -195,6 +115,134 @@ public:
     }
 };
 
+// Classe Monkey (herda de Animal)
+class Monkey : public Animal
+{
+private:
+    vector<vector<float>> sinal;
+    map<int, int> heardSignal;
+    string filename; // Nome do arquivo a ser criado
+    ofstream file;   // Arquivo de saída
+    int printSignalCount = 0; // Contador para o número de vezes que a função printSignal foi chamada
+
+public:
+    // Construtor padrão de Monkey
+    Monkey() : sinal(3, vector<float>(10))
+    {
+        filename = getName() + ".txt"; // Nome do arquivo é o nome do objeto seguido de ".txt"
+        file.open(filename);           // Abre o arquivo para escrita
+
+        // Preenchendo o vetor com números aleatórios entre 0 e 1
+        for (int i = 0; i < 3; i++)
+        {
+
+            for (int j = 0; j < 10; j++)
+            {
+                sinal[i][j] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+            }
+        }
+    }
+
+    // Construtor com parâmetros específicos de Monkey
+    Monkey(string n) : Animal(n), sinal(3, vector<float>(10))
+    {
+        setName(n); // Define o nome do objeto
+        filename = getName() + ".txt"; // Nome do arquivo é o nome do objeto seguido de ".txt"
+        file.open(filename);           // Abre o arquivo para escrita
+
+        // Preenchendo o vetor com números aleatórios entre 0 e 1
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                sinal[i][j] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+            }
+        }
+    }
+
+    // Getter para o vetor sinal
+    const vector<vector<float>> &getSinal() const
+    {
+        return sinal;
+    }
+
+    // Set para o vetor sinal
+    void setSinal(const vector<vector<float>> &newSinal)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                sinal[i][j] = newSinal[i][j];
+            }
+        }
+    }
+
+    // Getter para o vetor sinal
+    const map<int, int> &getHeardSignal() const
+    {
+        return heardSignal;
+    }
+
+    void setHeardSignal(const map<int, int> &newSinal)
+    {
+        heardSignal = newSinal;
+    }
+
+    void printSignal()
+    {
+        // Incrementa o contador de iterações toda vez que a função é chamada
+        printSignalCount++;
+
+        // Imprimir os sinais no arquivo
+        file << "Iteration number: " << printSignalCount << "\n";
+
+        for (size_t i = 0; i < sinal.size(); i++)
+        {
+            string predatorName = Predator::predatorTypeToString(static_cast<Predator::PredatorType>(i));
+            file << getName() << " tell the signs to the predator " << predatorName << " is:" << endl;
+
+            // Imprime os elementos do início até a metade do vetor
+            for (size_t j = 0; j < sinal[i].size() / 2; j++)
+            {
+                file << "|Sig:(" << j << ") - Val:(" << std::fixed << std::setprecision(3) << sinal[i][j] << ")| ";
+            }
+
+            file << endl; // Quebra a linha após a primeira metade
+
+            // Imprime a segunda metade dos elementos na próxima linha
+            for (size_t j = sinal[i].size() / 2; j < sinal[i].size(); j++)
+            {
+                file << "|Sig:(" << j << ") - Val:(" << fixed << setprecision(3) << sinal[i][j] << ")| ";
+            }
+
+            file << endl; // Pula para a próxima linha após imprimir todos os elementos
+
+            file << endl;
+        }
+
+        // Imprimir o maior sinal associado para cada animal
+        for (size_t i = 0; i < sinal.size(); i++)
+        {
+            string predatorName = Predator::predatorTypeToString(static_cast<Predator::PredatorType>(i));
+            float maxValue = 0;
+            size_t maxSign = 0;
+
+            for (size_t j = 0; j < sinal[i].size(); j++)
+            {
+                if (sinal[i][j] > maxValue)
+                {
+                    maxValue = sinal[i][j];
+                    maxSign = j;
+                }
+            }
+
+            cout << getName() << " has the highest index for the symbol " << maxSign << " with value "
+            << fixed << setprecision(3) << maxValue << " for the predator " << predatorName << "." << endl;
+        }
+    }
+};
+
 // Classe do Ambiente
 class Environment
 {
@@ -236,7 +284,6 @@ public:
     // Função para adicionar árvores ao ambiente
     static void addTree(Environment environment[linhaMatriz][colunaMatriz], EnvironmentType type, int num)
     {
-        srand(time(nullptr)); // Configuração da semente do gerador de números aleatórios
         int it = num;
         while (it != 0)
         {
@@ -326,7 +373,6 @@ public:
     // Função para adicionar macacos no ambiente
     static void addMonkey(Environment environment[linhaMatriz][colunaMatriz], Monkey *monk) // Recebe um ponteiro para Monkey
     {
-        srand(time(nullptr));
         int it = 1;
         while (it != 0)
         {
@@ -345,7 +391,6 @@ public:
     // Função para adicionar predadores no ambiente
     static void addPredator(Environment environment[linhaMatriz][colunaMatriz], Predator &pred) // Recebe o objeto Predator por referência
     {
-        srand(time(nullptr));
         int it = 1;
         while (it != 0)
         {
@@ -436,7 +481,7 @@ public:
             if ((environment[monkX][monkY].type == Environment::GR) ||
                 (noSecurityOptions.front()->predatorList.front()->type == Predator::TI && environment[monkX][monkY].type != Environment::LT) ||
                 (noSecurityOptions.front()->predatorList.front()->type == Predator::EA && environment[monkX][monkY].type != Environment::HT) ||
-                (noSecurityOptions.front()->predatorList.front()->type == Predator::SN && (environment[monkX][monkY].type != Environment::MT || environment[monkX][monkY].type != Environment::LT)))
+                (noSecurityOptions.front()->predatorList.front()->type == Predator::SN && (environment[monkX][monkY].type != Environment::MT)))
             {
                 monkeyStrategyWalk(monk, securityOptions, noSecurityOptions.front());
             }
@@ -643,7 +688,7 @@ public:
                             (environment[predX][predY].type == Environment::GR) ||
                             (pred->type == Predator::TI && environment[predX][predY].type != Environment::LT) ||
                             (pred->type == Predator::EA && environment[predX][predY].type != Environment::HT) ||
-                            (pred->type == Predator::SN && (environment[predX][predY].type != Environment::MT || environment[predX][predY].type != Environment::LT)))
+                            (pred->type == Predator::SN && (environment[predX][predY].type != Environment::MT)))
                         {
                             targetOptions.push_back(&environment[i][j]);
                             cout << targetOptions.back()->monkeyList.front()->getName() << " in position (" << i << "," << j << ") add in target list." << endl;
@@ -660,6 +705,7 @@ public:
         }
         else
         {
+            cout << pred->getName() << " strategy walking." << endl;
             Monkey *targetMonkeyPtr = targetOptions.front()->monkeyList.front();
             predatorStrategyWalk(pred, targetMonkeyPtr);
         }
@@ -847,7 +893,7 @@ public:
         environment[x][y].monkeyList.push_front(monk);
 
         cout << monk->getName() << " moving to the opposite side to position (" << get<0>(environment[x][y].position)
-        << ", " << get<1>(environment[x][y].position) << ").\n"<< endl;
+        << "," << get<1>(environment[x][y].position) << ").\n"<< endl;
     }
 
     // Função de andar não aleatória do predador (incompleta)
@@ -882,12 +928,20 @@ public:
         {
             // Predador irá atacar apenas no ambiente que ele consegue visualizar
             if (
-                (environment[x][y].type == Environment::GR || (environment[x][y].predatorList.front()->type == Predator::TI && environment[x][y].type == Environment::LT)) || (environment[x][y].predatorList.front()->type == Predator::EA && environment[x][y].type == Environment::HT) || (environment[x][y].predatorList.front()->type == Predator::SN && (environment[x][y].type == Environment::MT || environment[x][y].type == Environment::LT)))
+                (environment[x][y].type == Environment::GR ||
+                (environment[x][y].predatorList.front()->type == Predator::TI && environment[x][y].type == Environment::LT) ||
+                (environment[x][y].predatorList.front()->type == Predator::EA && environment[x][y].type == Environment::HT) ||
+                (environment[x][y].predatorList.front()->type == Predator::SN && (environment[x][y].type == Environment::MT))))
             {
-                cout << pred->getName() << " walking to position (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ") and killed " << monk->getName() << ".\n";
+                cout << "Walking to position (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ") and killed " << monk->getName() << ".\n";
                 predatorAttack(pred, monk);
             }
+            // Caso va para onde não consiga matar o macaco
+            else{
+                cout << "Walking to position (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ") but not killed " << monk->getName() << ".\n" << endl;
+            }
         }
+        Environment::printEnvironment(environment);
     }
 
     // Se o predador atacar, deve abaixar o percentual do sinal no vetor de sinais do macaco
@@ -923,7 +977,7 @@ public:
             }
         }
 
-        cout << "Morte - Sinal redefinido.\n\n";
+        cout << "Death - sign reset.\n\n";
         Environment::printEnvironment(environment);
 
         // Mover macaco morto para outro lugar -- reviver
@@ -938,14 +992,57 @@ public:
                 environment[i][j].monkeyList.push_front(monk);
                 moveu = true;
                 cout << "New position of " << monk->getName() << " is (" << get<0>(monk->getPosition()) << ',' << get<1>(monk->getPosition()) << ").\n" << endl;
-                Environment::printEnvironment(environment);
             }
         }
     }
+
+    // Função para verificar se em todos os monkeys tem um sinal maior que 1 para cada animal
+    bool verifySignal(list<Monkey *> monkeysList)
+    {
+        float tolerance = 1.0;
+        for (Monkey *monkey : monkeysList)
+        {
+            const vector<vector<float>> &sinal = monkey->getSinal();
+
+            // Verificar se existe ao menos um valor de índice j que seja igual ou maior que 1
+            bool foundSignalForAllIndices = true;
+            for (size_t i = 0; i < sinal.size(); i++)
+            {
+                string predatorName = Predator::predatorTypeToString(static_cast<Predator::PredatorType>(i));
+                bool foundSignalForIndex = false;
+                for (size_t j = 0; j < sinal[i].size(); j++)
+                {
+                    if (sinal[i][j] >= tolerance)
+                    {
+                        foundSignalForIndex = true;
+                        cout << monkey->getName() << " tem o sinal " << j << " para o predador " << predatorName
+                        << " com valor " << sinal[i][j] << " maior ou igual a tolerancia " << tolerance << ".\n";
+                        break;
+                    }
+                }
+                if (!foundSignalForIndex)
+                {
+                    foundSignalForAllIndices = false;
+                    break;
+                }
+            }
+
+            // Se não foi encontrado sinal com valor maior ou igual a 1 para algum índice i, retornar false
+            if (!foundSignalForAllIndices)
+                return false;
+        }
+
+        // Se todos os objetos têm pelo menos um sinal com valor maior ou igual a 1 para cada índice i, retornar true
+        return true;
+    }
+
 };
 
 int main()
 {
+    // Configurando a semente para geração de números aleatórios
+    srand(time(nullptr));
+    
     // Declarando uma matriz 10x10 de objetos Environment
     Environment environment[linhaMatriz][colunaMatriz];
 
@@ -965,6 +1062,7 @@ int main()
         monkeysList.push_back(monkey);                            // Adiciona o ponteiro para o Monkey na lista de ponteiros
         Environment::addMonkey(environment, monkey);              // Passa o ponteiro para a função addMonkey
         //cout << "O endereco de memoria de " << monkeysList.back()->getName() << " na funcao MAIN e: " << monkeysList.back() << endl;
+        monkeysList.back()->printSignal(); // Imprime os sinais dos animeis
     }
 
     // Adicionando predadores
@@ -979,14 +1077,11 @@ int main()
     }
     cout << endl;
 
-    // Environment::printEnvironment(environment);
     Sobreviver sobreviver = Sobreviver(environment);
     Environment::printEnvironment(sobreviver.getEnvironment()); // Imprimindo os tipos dos elementos da matriz
 
-    int epoca = 3;
-
-    for (size_t i = 0; i < epoca; i++)
-    {
+    bool verify = false;
+    while(verify != true){
         for (auto &monkey : monkeysList)
         {
             sobreviver.perception(monkey);
@@ -996,6 +1091,8 @@ int main()
         {
             sobreviver.perception(predator);
         }
+
+        verify = sobreviver.verifySignal(monkeysList);
     }
 
     return 0;
